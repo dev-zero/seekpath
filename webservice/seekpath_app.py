@@ -215,7 +215,7 @@ def get_json_for_visualizer(cell, relcoords, atomic_numbers):
     # Response for JS, and path_results
     return response, res
 
-def process_structure_core(filecontent, fileformat, call_source=""):
+def process_structure_core(filecontent, fileformat, call_source="", extra_data=None):
     """
     The main function that generates the data to be sent back to the view.
     
@@ -232,7 +232,7 @@ def process_structure_core(filecontent, fileformat, call_source=""):
     start_time = time.time()
     fileobject = io.StringIO(str(filecontent))
     try:
-        structure_tuple = get_structure_tuple(fileobject, fileformat)
+        structure_tuple = get_structure_tuple(fileobject, fileformat, extra_data=extra_data)
     except UnknownFormatError:
         logme(filecontent, fileformat, flask.request, call_source,
               reason = 'unknownformat')
@@ -578,6 +578,7 @@ def process_structure():
         try:
             return process_structure_core(
                 filecontent=filecontent, fileformat=fileformat,
+                extra_data=dict(flask.request.form), # pass along the query parameters
                 call_source="process_structure")
         except seekpath.hpkot.SymmetryDetectionError:
             flask.flash(

@@ -39,7 +39,7 @@ def tuple_from_ase(asestructure):
     return structure_tuple
 
 
-def get_structure_tuple(fileobject, fileformat):        
+def get_structure_tuple(fileobject, fileformat, extra_data=None):
     """
     Given a file-like object (using StringIO or open()), and a string
     identifying the file format, return a structure tuple as accepted
@@ -56,10 +56,25 @@ def get_structure_tuple(fileobject, fileformat):
         'xsf': 'xsf',
         'castep': 'castep-cell',
         'pdb': 'proteindatabank',
+        'xyz': 'xyz',
         # 'cif': 'cif', # currently broken in ASE: https://gitlab.com/ase/ase/issues/15
         }
     if fileformat in ase_fileformats.keys():
         asestructure = ase.io.read(fileobject, format=ase_fileformats[fileformat])
+
+        if fileformat == 'xyz':
+            # XYZ does not contain cell information, add them back from the additional form data
+            try:
+                cell = [
+                    (float(extra_data['xyzCellVecAx'][0]), float(extra_data['xyzCellVecAy'][0]), float(extra_data['xyzCellVecAz'][0])),
+                    (float(extra_data['xyzCellVecBx'][0]), float(extra_data['xyzCellVecBy'][0]), float(extra_data['xyzCellVecBz'][0])),
+                    (float(extra_data['xyzCellVecCx'][0]), float(extra_data['xyzCellVecCy'][0]), float(extra_data['xyzCellVecCz'][0])),
+                    ]
+            except (KeyError, ValueError):
+                raise # at some point we might want to convert the different conversion errors to a custom exception
+
+            asestructure.set_cell(cell)
+
         return tuple_from_ase(asestructure)
     elif fileformat == 'qe-inp':
         from .qeinp import read_qeinp
