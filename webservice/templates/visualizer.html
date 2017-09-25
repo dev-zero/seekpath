@@ -444,17 +444,27 @@
 
     <div id='rawcode'>
       <h2><a name="downloadablecoords"></a>Data for copy-paste</h2>
-        <p>Clic on the header to open a section</p>
-        <div id="accordion">
+      <p>Clic on the header to open a section</p>
+      <div id="accordion">
         <h3>Quantum ESPRESSO pw.x input</h3>
         <div>
           <p>
             <button class="clipboardbtn" data-clipboard-target="#qepwdata">
               <img src="../static/img/clippy.svg" width="12" alt="Copy to clipboard"/>&nbsp;Copy to clipboard</button>
-             (Replace <code>&lt;...&gt;</code> with the actual content for your 
-            simulation</code>)
-            </p>
+               (Replace <code>&lt;...&gt;</code> with the actual content for your
+              simulation</code>)
+          </p>
           <p><code id="qepwdata">{{ qe_pw|safe }}</code></p>
+        </div>
+        <h3>CP2K input</h3>
+        <div>
+          <p>
+            <button class="clipboardbtn" data-clipboard-target="#cp2kdata">
+              <img src="../static/img/clippy.svg" width="12" alt="Copy to clipboard"/>&nbsp;Copy to clipboard</button>
+               (Replace <code>&lt;...&gt;</code> with the actual content for your
+              simulation</code>)
+          </p>
+          <p><code id="cp2kdata">{{ cp2k|safe }}</code></p>
         </div>
 <!--        <h3>Quantum ESPRESSO matdyn.x input</h3>
         <div>

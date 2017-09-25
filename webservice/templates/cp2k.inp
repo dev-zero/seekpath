@@ -1,0 +1,62 @@
+&GLOBAL
+   RUN_TYPE ENERGY
+   <...>
+&END GLOBAL
+
+&FORCE_EVAL
+   <...>
+
+   &DFT
+      <...>
+
+      &QS
+         EXTRAPOLATION USE_GUESS ! required for K-Point sampling
+      &END QS
+
+      &POISSON
+         PERIODIC XYZ
+      &END POISSON
+
+      &PRINT
+         &BAND_STRUCTURE
+            FILE_NAME <NAME_HERE>.bs
+
+            {% for s in raw.path -%}
+            &KPOINT_SET
+               UNITS B_VECTOR
+               SPECIAL_POINT {{ '%5s' % s[0] }} {%- for c in raw.kpoints_rel[s[0]] %} {{ '%16.10f' % c }}{% endfor %}
+               SPECIAL_POINT {{ '%5s' % s[1] }} {%- for c in raw.kpoints_rel[s[1]] %} {{ '%16.10f' % c }}{% endfor %}
+               NPOINTS 10
+            &END KPOINT_SET
+            {% endfor %}
+         &END BAND_STRUCTURE
+      &END PRINT
+
+      &KPOINTS
+         <...>
+      &END KPOINTS
+   &END DFT
+
+   &SUBSYS
+      ! Important: use the cell and coordinates provided here instead of the original ones
+      &CELL
+         {%- for s, v in zip(['A', 'B', 'C'], raw.primitive_lattice) %}
+         {{ '%4s' % s }} [angstrom] {%- for c in v %} {{ '%16.10f' % c }}{% endfor %}
+         {%- endfor %}
+         PERIODIC XYZ
+      &END CELL
+      &COORD
+         {%- for s, v in zip(raw.primitive_symbols, raw.primitive_positions_cartesian) %}
+         {{ '%4s' % s }} {%- for c in v %} {{ '%16.10f' % c }}{% endfor %}
+         {%- endfor %}
+      &END COORD
+
+      {% for s in set(raw.primitive_symbols) -%}
+      &KIND {{ s }}
+         ELEMENT {{ s }}
+         BASIS_SET <BS_NAME_HERE>
+         POTENTIAL <PP_NAME_HERE>
+      &END KIND
+      {% endfor %}
+   &END SUBSYS
+&END FORCE_EVAL
